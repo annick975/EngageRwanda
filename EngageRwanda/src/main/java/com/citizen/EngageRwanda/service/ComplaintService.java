@@ -16,4 +16,8 @@ public interface ComplaintService {
   ComplaintResponse updateComplaintStatus(Long complaintId, StatusUpdateRequest statusUpdateRequest);
 
   List<ComplaintResponse> getAllComplaints();
+
+  List<ComplaintResponse> getComplaintsForAdminAgency(String adminUsername);
+
+  ComplaintResponse updateComplaintStatusByAdmin(Long complaintId, StatusUpdateRequest statusUpdateRequest, String adminUsername);
 }

@@ -3,9 +3,11 @@ package com.citizen.EngageRwanda.service.impl;
 import com.citizen.EngageRwanda.dto.ComplaintRequest;
 import com.citizen.EngageRwanda.dto.ComplaintResponse;
 import com.citizen.EngageRwanda.dto.StatusUpdateRequest;
+import com.citizen.EngageRwanda.entity.Admin;
 import com.citizen.EngageRwanda.entity.Agency;
 import com.citizen.EngageRwanda.entity.Citizen;
 import com.citizen.EngageRwanda.entity.Complaint;
+import com.citizen.EngageRwanda.repository.AdminRepository;
 import com.citizen.EngageRwanda.repository.AgencyRepository;
 import com.citizen.EngageRwanda.repository.CitizenRepository;
 import com.citizen.EngageRwanda.repository.ComplaintRepository;
@@ -13,6 +15,7 @@ import com.citizen.EngageRwanda.service.ComplaintService;
 import com.citizen.EngageRwanda.util.TicketGenerator;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -27,6 +30,7 @@ public class ComplaintServiceImpl implements ComplaintService {
   private final ComplaintRepository complaintRepository;
   private final AgencyRepository agencyRepository;
   private final CitizenRepository citizenRepository;
+  private final AdminRepository adminRepository;
 
   @Override
   public ComplaintResponse createComplaint(ComplaintRequest complaintRequest) {
@@ -93,6 +97,57 @@ public class ComplaintServiceImpl implements ComplaintService {
         .collect(Collectors.toList());
   }
 
+  @Override
+  public List<ComplaintResponse> getComplaintsForAdminAgency(String adminUsername) {
+    // Find the admin by username
+    Admin admin = adminRepository.findByUsername(adminUsername)
+        .orElseThrow(() -> new EntityNotFoundException("Admin not found with username: " + adminUsername));
+
+    // Get the agency of the admin
+    Agency agency = admin.getAgency();
+    if (agency == null) {
+      throw new EntityNotFoundException("Admin is not associated with any agency");
+    }
+
+    // Get complaints for this agency
+    List<Complaint> complaints = complaintRepository.findByAssignedAgency(agency);
+
+    return complaints.stream()
+        .map(this::mapToDto)
+        .collect(Collectors.toList());
+  }
+
+  @Override
+  public ComplaintResponse updateComplaintStatusByAdmin(Long complaintId, StatusUpdateRequest statusUpdateRequest,
+      String adminUsername) {
+    // Find the admin by username
+    Admin admin = adminRepository.findByUsername(adminUsername)
+        .orElseThrow(() -> new EntityNotFoundException("Admin not found with username: " + adminUsername));
+
+    // Get the agency of the admin
+    Agency adminAgency = admin.getAgency();
+    if (adminAgency == null) {
+      throw new EntityNotFoundException("Admin is not associated with any agency");
+    }
+
+    // Find the complaint
+    Complaint complaint = complaintRepository.findById(complaintId)
+        .orElseThrow(() -> new EntityNotFoundException("Complaint not found with ID: " + complaintId));
+
+    // Check if the complaint belongs to the admin's agency
+    if (!complaint.getAssignedAgency().getId().equals(adminAgency.getId())) {
+      throw new AccessDeniedException("You are not authorized to update complaints for this agency");
+    }
+
+    // Update the complaint
+    complaint.setStatus(statusUpdateRequest.getStatus());
+    complaint.setResponseMessage(statusUpdateRequest.getResponseMessage());
+    complaint.setUpdatedAt(LocalDateTime.now());
+
+    Complaint updatedComplaint = complaintRepository.save(complaint);
+    return mapToDto(updatedComplaint);
+  }
+
   private ComplaintResponse mapToDto(Complaint complaint) {
     return ComplaintResponse.builder()
         .id(complaint.getId())
@@ -106,6 +161,7 @@ public class ComplaintServiceImpl implements ComplaintService {
         .createdAt(complaint.getCreatedAt())
         .updatedAt(complaint.getUpdatedAt())
         .responseMessage(complaint.getResponseMessage())
+        .fromRegisteredCitizen(complaint.getCitizen() != null)
         .build();
   }
 }
