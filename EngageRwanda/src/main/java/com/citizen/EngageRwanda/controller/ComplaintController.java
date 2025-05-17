@@ -55,6 +55,14 @@ public class ComplaintController {
     return ResponseEntity.ok(complaintService.getComplaintsByAgency(agencyName));
   }
 
+  @GetMapping("/admin/ticket/{ticketId}")
+  @PreAuthorize("hasRole('ADMIN')")
+  public ResponseEntity<ComplaintResponse> getComplaintByTicketIdAdmin(@PathVariable String ticketId) {
+    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    String adminUsername = authentication.getName();
+    return ResponseEntity.ok(complaintService.getComplaintByTicketIdForAdmin(ticketId, adminUsername));
+  }
+
   @PutMapping("/admin/{complaintId}")
   @PreAuthorize("hasRole('ADMIN')")
   public ResponseEntity<ComplaintResponse> updateComplaintStatus(
@@ -64,6 +72,19 @@ public class ComplaintController {
     String adminUsername = authentication.getName();
     return ResponseEntity.ok(complaintService.updateComplaintStatusByAdmin(
         complaintId,
+        statusUpdateRequest,
+        adminUsername));
+  }
+
+  @PutMapping("/admin/ticket/{ticketId}")
+  @PreAuthorize("hasRole('ADMIN')")
+  public ResponseEntity<ComplaintResponse> updateComplaintStatusByTicketId(
+      @PathVariable String ticketId,
+      @Valid @RequestBody StatusUpdateRequest statusUpdateRequest) {
+    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    String adminUsername = authentication.getName();
+    return ResponseEntity.ok(complaintService.updateComplaintStatusByTicketId(
+        ticketId,
         statusUpdateRequest,
         adminUsername));
   }

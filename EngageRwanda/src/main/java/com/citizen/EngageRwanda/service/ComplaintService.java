@@ -20,4 +20,8 @@ public interface ComplaintService {
   List<ComplaintResponse> getComplaintsForAdminAgency(String adminUsername);
 
   ComplaintResponse updateComplaintStatusByAdmin(Long complaintId, StatusUpdateRequest statusUpdateRequest, String adminUsername);
+
+  ComplaintResponse getComplaintByTicketIdForAdmin(String ticketId, String adminUsername);
+
+  ComplaintResponse updateComplaintStatusByTicketId(String ticketId, StatusUpdateRequest statusUpdateRequest, String adminUsername);
 }

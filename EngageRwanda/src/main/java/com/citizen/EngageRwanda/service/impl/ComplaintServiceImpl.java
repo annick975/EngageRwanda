@@ -148,6 +148,61 @@ public class ComplaintServiceImpl implements ComplaintService {
     return mapToDto(updatedComplaint);
   }
 
+  @Override
+  public ComplaintResponse getComplaintByTicketIdForAdmin(String ticketId, String adminUsername) {
+    // Find the admin by username
+    Admin admin = adminRepository.findByUsername(adminUsername)
+        .orElseThrow(() -> new EntityNotFoundException("Admin not found with username: " + adminUsername));
+
+    // Get the agency of the admin
+    Agency adminAgency = admin.getAgency();
+    if (adminAgency == null) {
+      throw new EntityNotFoundException("Admin is not associated with any agency");
+    }
+
+    // Find the complaint by ticket ID
+    Complaint complaint = complaintRepository.findByTicketId(ticketId)
+        .orElseThrow(() -> new EntityNotFoundException("Complaint not found with ticket ID: " + ticketId));
+
+    // Check if the complaint belongs to the admin's agency
+    if (!complaint.getAssignedAgency().getId().equals(adminAgency.getId())) {
+      throw new AccessDeniedException("You are not authorized to view complaints for this agency");
+    }
+
+    return mapToDto(complaint);
+  }
+
+  @Override
+  public ComplaintResponse updateComplaintStatusByTicketId(String ticketId, StatusUpdateRequest statusUpdateRequest,
+      String adminUsername) {
+    // Find the admin by username
+    Admin admin = adminRepository.findByUsername(adminUsername)
+        .orElseThrow(() -> new EntityNotFoundException("Admin not found with username: " + adminUsername));
+
+    // Get the agency of the admin
+    Agency adminAgency = admin.getAgency();
+    if (adminAgency == null) {
+      throw new EntityNotFoundException("Admin is not associated with any agency");
+    }
+
+    // Find the complaint by ticket ID
+    Complaint complaint = complaintRepository.findByTicketId(ticketId)
+        .orElseThrow(() -> new EntityNotFoundException("Complaint not found with ticket ID: " + ticketId));
+
+    // Check if the complaint belongs to the admin's agency
+    if (!complaint.getAssignedAgency().getId().equals(adminAgency.getId())) {
+      throw new AccessDeniedException("You are not authorized to update complaints for this agency");
+    }
+
+    // Update the complaint
+    complaint.setStatus(statusUpdateRequest.getStatus());
+    complaint.setResponseMessage(statusUpdateRequest.getResponseMessage());
+    complaint.setUpdatedAt(LocalDateTime.now());
+
+    Complaint updatedComplaint = complaintRepository.save(complaint);
+    return mapToDto(updatedComplaint);
+  }
+
   private ComplaintResponse mapToDto(Complaint complaint) {
     return ComplaintResponse.builder()
         .id(complaint.getId())
