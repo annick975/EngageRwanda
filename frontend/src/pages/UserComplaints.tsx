@@ -5,7 +5,7 @@ import { getCitizenComplaints } from '../services/api';
 import Button from '../components/Button';
 
 const UserComplaints: React.FC = () => {
-  const { isAuthenticated, user } = useAuth();
+  const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const [complaints, setComplaints] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);

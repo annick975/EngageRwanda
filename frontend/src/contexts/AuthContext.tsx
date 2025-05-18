@@ -1,5 +1,5 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import { CitizenAuthResponse, AuthResponse, UserAuth } from '../types';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { UserAuth } from '../types';
 import { getCitizenProfile } from '../services/api';
 
 interface AuthContextType {
@@ -29,6 +29,25 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     console.log('Auth state updated:', { user: newUser, isAuthenticated: !!newUser });
   };
 
+  const logout = useCallback(() => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    setUser(null);
+    setIsAuthenticated(false);
+  }, []);
+
+  const fetchUserProfile = useCallback(() => {
+    // Try to get user profile
+    getCitizenProfile()
+      .then((profile) => {
+        handleSetUser(profile);
+      })
+      .catch(() => {
+        // If getting profile fails, clear auth state
+        logout();
+      });
+  }, [logout]);
+
   useEffect(() => {
     const token = localStorage.getItem('token');
     const savedUser = localStorage.getItem('user');
@@ -49,26 +68,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         fetchUserProfile();
       }
     }
-  }, []);
-
-  const fetchUserProfile = () => {
-    // Try to get user profile
-    getCitizenProfile()
-      .then((profile) => {
-        handleSetUser(profile);
-      })
-      .catch(() => {
-        // If getting profile fails, clear auth state
-        logout();
-      });
-  };
-
-  const logout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    setUser(null);
-    setIsAuthenticated(false);
-  };
+  }, [fetchUserProfile]);
 
   return (
     <AuthContext.Provider value={{ user, setUser: handleSetUser, isAuthenticated, logout }}>

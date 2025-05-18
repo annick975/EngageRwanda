@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
 import { registerCitizen } from '../services/api';
 import Input from '../components/Input';
 import Button from '../components/Button';
@@ -8,7 +7,6 @@ import axios from 'axios';
 
 const Register: React.FC = () => {
   const navigate = useNavigate();
-  const { setUser } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [formData, setFormData] = useState({

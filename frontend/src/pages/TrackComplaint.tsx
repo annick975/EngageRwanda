@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 import { getComplaintByTicketId } from '../services/api';
 import Input from '../components/Input';
@@ -11,14 +11,7 @@ const TrackComplaint: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
 
-  useEffect(() => {
-    if (ticketId) {
-      setSearchTicketId(ticketId);
-      handleSearch();
-    }
-  }, [ticketId]);
-
-  const handleSearch = async (e?: React.FormEvent) => {
+  const handleSearch = useCallback(async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     if (!searchTicketId) return;
 
@@ -34,7 +27,14 @@ const TrackComplaint: React.FC = () => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [searchTicketId]);
+
+  useEffect(() => {
+    if (ticketId) {
+      setSearchTicketId(ticketId);
+      handleSearch();
+    }
+  }, [ticketId, handleSearch]);
 
   const getStatusColor = (status: string) => {
     switch (status.toLowerCase()) {
