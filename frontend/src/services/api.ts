@@ -1,5 +1,5 @@
 import axios, { AxiosError } from 'axios';
-import { CitizenAuthResponse, CitizenLoginRequest, CitizenRegistrationRequest, Complaint, ComplaintRequest, StatusUpdateRequest, Agency, Admin, AuthResponse, LoginRequest } from '../types';
+import { CitizenAuthResponse, CitizenLoginRequest, CitizenRegistrationRequest, Complaint, ComplaintRequest, StatusUpdateRequest, Agency, AuthResponse, LoginRequest } from '../types';
 
 const API_URL = 'http://localhost:8080/api/v1';
 
