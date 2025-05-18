@@ -27,8 +27,14 @@ public class AdminServiceImpl implements AdminService {
     Agency agency = agencyRepository.findByName(adminDto.getAgencyName())
         .orElseThrow(() -> new EntityNotFoundException("Agency not found: " + adminDto.getAgencyName()));
 
+    // Check if email already exists
+    if (adminRepository.findByEmail(adminDto.getEmail()).isPresent()) {
+      throw new IllegalArgumentException("Email already in use: " + adminDto.getEmail());
+    }
+
     Admin admin = new Admin();
     admin.setUsername(adminDto.getUsername());
+    admin.setEmail(adminDto.getEmail());
     admin.setPassword(passwordEncoder.encode(adminDto.getPassword()));
     admin.setAgency(agency);
     admin.setRole("ROLE_ADMIN");
@@ -55,6 +61,14 @@ public class AdminServiceImpl implements AdminService {
   }
 
   @Override
+  public AdminDto getAdminByEmail(String email) {
+    Admin admin = adminRepository.findByEmail(email)
+        .orElseThrow(() -> new EntityNotFoundException("Admin not found with email: " + email));
+
+    return mapToDto(admin);
+  }
+
+  @Override
   public List<AdminDto> getAdminsByAgency(String agencyName) {
     Agency agency = agencyRepository.findByName(agencyName)
         .orElseThrow(() -> new EntityNotFoundException("Agency not found: " + agencyName));
@@ -70,6 +84,7 @@ public class AdminServiceImpl implements AdminService {
     AdminDto adminDto = new AdminDto();
     adminDto.setId(admin.getId());
     adminDto.setUsername(admin.getUsername());
+    adminDto.setEmail(admin.getEmail());
     adminDto.setAgencyName(admin.getAgency().getName());
     // Do not map the password back to DTO for security reasons
 

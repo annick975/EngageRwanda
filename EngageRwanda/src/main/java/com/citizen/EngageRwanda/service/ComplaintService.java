@@ -11,6 +11,8 @@ public interface ComplaintService {
 
   ComplaintResponse getComplaintByTicketId(String ticketId);
 
+  ComplaintResponse getComplaintByTicketIdForCitizen(String ticketId, String citizenEmail);
+
   List<ComplaintResponse> getComplaintsByAgency(String agencyName);
 
   ComplaintResponse updateComplaintStatus(Long complaintId, StatusUpdateRequest statusUpdateRequest);
@@ -19,9 +21,11 @@ public interface ComplaintService {
 
   List<ComplaintResponse> getComplaintsForAdminAgency(String adminUsername);
 
-  ComplaintResponse updateComplaintStatusByAdmin(Long complaintId, StatusUpdateRequest statusUpdateRequest, String adminUsername);
+  ComplaintResponse updateComplaintStatusByAdmin(Long complaintId, StatusUpdateRequest statusUpdateRequest,
+      String adminUsername);
 
   ComplaintResponse getComplaintByTicketIdForAdmin(String ticketId, String adminUsername);
 
-  ComplaintResponse updateComplaintStatusByTicketId(String ticketId, StatusUpdateRequest statusUpdateRequest, String adminUsername);
+  ComplaintResponse updateComplaintStatusByTicketId(String ticketId, StatusUpdateRequest statusUpdateRequest,
+      String adminUsername);
 }

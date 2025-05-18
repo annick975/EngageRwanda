@@ -23,19 +23,19 @@ public class UserDetailsServiceImpl implements UserDetailsService {
   private final CitizenRepository citizenRepository;
 
   @Override
-  public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-    // First, try to find an admin with this username
-    Optional<Admin> adminOptional = adminRepository.findByUsername(username);
+  public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+    // First, try to find an admin with this email
+    Optional<Admin> adminOptional = adminRepository.findByEmail(email);
     if (adminOptional.isPresent()) {
       Admin admin = adminOptional.get();
       return new User(
-          admin.getUsername(),
+          admin.getEmail(),
           admin.getPassword(),
           Collections.singletonList(new SimpleGrantedAuthority(admin.getRole())));
     }
 
     // If not an admin, try to find a citizen with this email
-    Optional<Citizen> citizenOptional = citizenRepository.findByEmail(username);
+    Optional<Citizen> citizenOptional = citizenRepository.findByEmail(email);
     if (citizenOptional.isPresent()) {
       Citizen citizen = citizenOptional.get();
       return new User(
@@ -44,6 +44,6 @@ public class UserDetailsServiceImpl implements UserDetailsService {
           Collections.singletonList(new SimpleGrantedAuthority(citizen.getRole())));
     }
 
-    throw new UsernameNotFoundException("User not found with username/email: " + username);
+    throw new UsernameNotFoundException("User not found with email: " + email);
   }
 }

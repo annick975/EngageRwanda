@@ -66,6 +66,24 @@ public class ComplaintServiceImpl implements ComplaintService {
   }
 
   @Override
+  public ComplaintResponse getComplaintByTicketIdForCitizen(String ticketId, String citizenEmail) {
+    // Find the citizen by email
+    Citizen citizen = citizenRepository.findByEmail(citizenEmail)
+        .orElseThrow(() -> new EntityNotFoundException("Citizen not found with email: " + citizenEmail));
+
+    // Find the complaint by ticket ID
+    Complaint complaint = complaintRepository.findByTicketId(ticketId)
+        .orElseThrow(() -> new EntityNotFoundException("Complaint not found with ticket ID: " + ticketId));
+
+    // Verify that this complaint belongs to the citizen
+    if (complaint.getCitizen() == null || !complaint.getCitizen().getId().equals(citizen.getId())) {
+      throw new AccessDeniedException("You are not authorized to view this complaint");
+    }
+
+    return mapToDto(complaint);
+  }
+
+  @Override
   public List<ComplaintResponse> getComplaintsByAgency(String agencyName) {
     Agency agency = agencyRepository.findByName(agencyName)
         .orElseThrow(() -> new EntityNotFoundException("Agency not found: " + agencyName));
@@ -99,9 +117,9 @@ public class ComplaintServiceImpl implements ComplaintService {
 
   @Override
   public List<ComplaintResponse> getComplaintsForAdminAgency(String adminUsername) {
-    // Find the admin by username
-    Admin admin = adminRepository.findByUsername(adminUsername)
-        .orElseThrow(() -> new EntityNotFoundException("Admin not found with username: " + adminUsername));
+    // Find the admin by email
+    Admin admin = adminRepository.findByEmail(adminUsername)
+        .orElseThrow(() -> new EntityNotFoundException("Admin not found with email: " + adminUsername));
 
     // Get the agency of the admin
     Agency agency = admin.getAgency();
@@ -120,9 +138,9 @@ public class ComplaintServiceImpl implements ComplaintService {
   @Override
   public ComplaintResponse updateComplaintStatusByAdmin(Long complaintId, StatusUpdateRequest statusUpdateRequest,
       String adminUsername) {
-    // Find the admin by username
-    Admin admin = adminRepository.findByUsername(adminUsername)
-        .orElseThrow(() -> new EntityNotFoundException("Admin not found with username: " + adminUsername));
+    // Find the admin by email
+    Admin admin = adminRepository.findByEmail(adminUsername)
+        .orElseThrow(() -> new EntityNotFoundException("Admin not found with email: " + adminUsername));
 
     // Get the agency of the admin
     Agency adminAgency = admin.getAgency();
@@ -150,9 +168,9 @@ public class ComplaintServiceImpl implements ComplaintService {
 
   @Override
   public ComplaintResponse getComplaintByTicketIdForAdmin(String ticketId, String adminUsername) {
-    // Find the admin by username
-    Admin admin = adminRepository.findByUsername(adminUsername)
-        .orElseThrow(() -> new EntityNotFoundException("Admin not found with username: " + adminUsername));
+    // Find the admin by email
+    Admin admin = adminRepository.findByEmail(adminUsername)
+        .orElseThrow(() -> new EntityNotFoundException("Admin not found with email: " + adminUsername));
 
     // Get the agency of the admin
     Agency adminAgency = admin.getAgency();
@@ -175,9 +193,9 @@ public class ComplaintServiceImpl implements ComplaintService {
   @Override
   public ComplaintResponse updateComplaintStatusByTicketId(String ticketId, StatusUpdateRequest statusUpdateRequest,
       String adminUsername) {
-    // Find the admin by username
-    Admin admin = adminRepository.findByUsername(adminUsername)
-        .orElseThrow(() -> new EntityNotFoundException("Admin not found with username: " + adminUsername));
+    // Find the admin by email
+    Admin admin = adminRepository.findByEmail(adminUsername)
+        .orElseThrow(() -> new EntityNotFoundException("Admin not found with email: " + adminUsername));
 
     // Get the agency of the admin
     Agency adminAgency = admin.getAgency();

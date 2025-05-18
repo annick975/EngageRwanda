@@ -11,5 +11,7 @@ public interface AdminService {
 
   AdminDto getAdminByUsername(String username);
 
+  AdminDto getAdminByEmail(String email);
+
   List<AdminDto> getAdminsByAgency(String agencyName);
 }

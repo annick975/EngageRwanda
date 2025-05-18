@@ -41,26 +41,36 @@ public class ComplaintController {
     return ResponseEntity.ok(complaintService.getComplaintByTicketId(ticketId));
   }
 
-  @GetMapping("/admin/my-agency")
+  @GetMapping(path = {"/citizen/track/{ticketId}"})
+  @PreAuthorize("hasRole('CITIZEN')")
+  public ResponseEntity<ComplaintResponse> getComplaintByTicketIdForCitizen(@PathVariable String ticketId) {
+    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    String citizenEmail = authentication.getName();
+    return ResponseEntity.ok(complaintService.getComplaintByTicketIdForCitizen(ticketId, citizenEmail));
+  }
+
+  @GetMapping("/api/v1/citizen/track/{ticketId}")
+  @PreAuthorize("hasRole('CITIZEN')")
+  public ResponseEntity<ComplaintResponse> getComplaintByTicketIdForCitizenAlt(@PathVariable String ticketId) {
+    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    String citizenEmail = authentication.getName();
+    return ResponseEntity.ok(complaintService.getComplaintByTicketIdForCitizen(ticketId, citizenEmail));
+  }
+
+  @GetMapping("/admin/complaints")
   @PreAuthorize("hasRole('ADMIN')")
   public ResponseEntity<List<ComplaintResponse>> getComplaintsForMyAgency() {
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-    String adminUsername = authentication.getName();
-    return ResponseEntity.ok(complaintService.getComplaintsForAdminAgency(adminUsername));
-  }
-
-  @GetMapping("/admin/agency/{agencyName}")
-  @PreAuthorize("hasRole('ADMIN')")
-  public ResponseEntity<List<ComplaintResponse>> getComplaintsByAgency(@PathVariable String agencyName) {
-    return ResponseEntity.ok(complaintService.getComplaintsByAgency(agencyName));
+    String adminEmail = authentication.getName();
+    return ResponseEntity.ok(complaintService.getComplaintsForAdminAgency(adminEmail));
   }
 
   @GetMapping("/admin/ticket/{ticketId}")
   @PreAuthorize("hasRole('ADMIN')")
   public ResponseEntity<ComplaintResponse> getComplaintByTicketIdAdmin(@PathVariable String ticketId) {
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-    String adminUsername = authentication.getName();
-    return ResponseEntity.ok(complaintService.getComplaintByTicketIdForAdmin(ticketId, adminUsername));
+    String adminEmail = authentication.getName();
+    return ResponseEntity.ok(complaintService.getComplaintByTicketIdForAdmin(ticketId, adminEmail));
   }
 
   @PutMapping("/admin/{complaintId}")
@@ -69,11 +79,11 @@ public class ComplaintController {
       @PathVariable Long complaintId,
       @Valid @RequestBody StatusUpdateRequest statusUpdateRequest) {
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-    String adminUsername = authentication.getName();
+    String adminEmail = authentication.getName();
     return ResponseEntity.ok(complaintService.updateComplaintStatusByAdmin(
         complaintId,
         statusUpdateRequest,
-        adminUsername));
+        adminEmail));
   }
 
   @PutMapping("/admin/ticket/{ticketId}")
@@ -82,16 +92,10 @@ public class ComplaintController {
       @PathVariable String ticketId,
       @Valid @RequestBody StatusUpdateRequest statusUpdateRequest) {
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-    String adminUsername = authentication.getName();
+    String adminEmail = authentication.getName();
     return ResponseEntity.ok(complaintService.updateComplaintStatusByTicketId(
         ticketId,
         statusUpdateRequest,
-        adminUsername));
-  }
-
-  @GetMapping("/admin/all")
-  @PreAuthorize("hasRole('ADMIN')")
-  public ResponseEntity<List<ComplaintResponse>> getAllComplaints() {
-    return ResponseEntity.ok(complaintService.getAllComplaints());
+        adminEmail));
   }
 }

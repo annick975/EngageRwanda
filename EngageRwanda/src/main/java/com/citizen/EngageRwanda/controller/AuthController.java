@@ -33,7 +33,7 @@ public class AuthController {
     try {
       Authentication authentication = authenticationManager.authenticate(
           new UsernamePasswordAuthenticationToken(
-              loginRequest.getUsername(),
+              loginRequest.getEmail(),
               loginRequest.getPassword()));
 
       SecurityContextHolder.getContext().setAuthentication(authentication);
@@ -41,10 +41,11 @@ public class AuthController {
 
       String jwt = jwtUtils.generateToken(userDetails);
 
-      AdminDto admin = adminService.getAdminByUsername(userDetails.getUsername());
+      AdminDto admin = adminService.getAdminByEmail(userDetails.getUsername());
 
       return ResponseEntity.ok(AuthResponse.builder()
           .username(admin.getUsername())
+          .email(admin.getEmail())
           .role("ADMIN")
           .agencyName(admin.getAgencyName())
           .success(true)
@@ -55,7 +56,7 @@ public class AuthController {
     } catch (AuthenticationException e) {
       return ResponseEntity.ok(AuthResponse.builder()
           .success(false)
-          .message("Invalid username or password")
+          .message("Invalid email or password")
           .build());
     }
   }
@@ -67,6 +68,7 @@ public class AuthController {
 
       return ResponseEntity.ok(AuthResponse.builder()
           .username(createdAdmin.getUsername())
+          .email(createdAdmin.getEmail())
           .role("ADMIN")
           .agencyName(createdAdmin.getAgencyName())
           .success(true)

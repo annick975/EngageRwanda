@@ -49,6 +49,8 @@ public class SecurityConfig {
 
           // Citizen-only endpoints
           auth.requestMatchers("/api/v1/complaints/authenticated").hasRole("CITIZEN");
+          auth.requestMatchers("/api/v1/complaints/citizen/**").hasRole("CITIZEN");
+          auth.requestMatchers("/api/v1/citizen/**").hasRole("CITIZEN");
           auth.requestMatchers("/api/v1/citizens/profile").hasRole("CITIZEN");
           auth.requestMatchers("/api/v1/citizens/complaints").hasRole("CITIZEN");
 
