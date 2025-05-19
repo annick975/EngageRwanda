@@ -61,7 +61,7 @@ EngageRwanda follows a typical client-server architecture:
 ### Backend Setup
 1. Clone the repository
    ```
-   git clone [repository-url]
+   git clone https://github.com/annick975/EngageRwanda
    ```
 
 2. Navigate to the backend directory
@@ -131,6 +131,3 @@ The application is configured for deployment to cloud platforms:
 - Backend: Heroku or similar Java-supporting PaaS
 - Frontend: Netlify, Vercel, or similar static site hosting
 
-## License
-
-[Specify license information here] 
