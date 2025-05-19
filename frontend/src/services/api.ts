@@ -69,7 +69,7 @@ export const getCitizenComplaints = async () => {
 
 // Complaint endpoints
 export const createComplaint = async (data: ComplaintRequest) => {
-  const response = await api.post<Complaint>('/complaints', data);
+  const response = await api.post<Complaint>('/complaints/authenticated', data);
   return response.data;
 };
 
