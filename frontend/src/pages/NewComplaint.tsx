@@ -56,6 +56,13 @@ const NewComplaint: React.FC = () => {
     }));
   };
 
+  const handleCategoryChange = (value: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      category: value,
+    }));
+  };
+
   const handleAgencyChange = (value: string) => {
     setFormData((prev) => ({
       ...prev,
@@ -138,7 +145,7 @@ const NewComplaint: React.FC = () => {
               name="category"
               required
               value={formData.category}
-              onChange={handleAgencyChange}
+              onChange={handleCategoryChange}
               options={categoryOptions}
             />
 
